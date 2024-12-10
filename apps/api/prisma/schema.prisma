@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Comment {
+  id       Int    @id @default(autoincrement())
+  text     String
+  authorId Int
+  postId   Int
+  Users    Users  @relation(fields: [authorId], references: [id])
+  Post     Post   @relation(fields: [postId], references: [id])
+}
+
+model Group {
+  id            Int             @id @default(autoincrement())
+  name          String
+  UsersToGroups UsersToGroups[]
+}
+
+model Post {
+  id       Int       @id @default(autoincrement())
+  authorId Int
+  title    String
+  content  String
+  Comment  Comment[]
+  Users    Users     @relation(fields: [authorId], references: [id])
+}
+
+model ProfileInfo {
+  id       Int @id @default(autoincrement())
+  userId   Int @unique
+  metadata Json
+  Users    Users  @relation(fields: [userId], references: [id])
+}
+
+model Users {
+  id            Int          @id @default(autoincrement())
+  name          String
+  email         String          @unique(map: "User_email_key")
+  password      String
+  Comment       Comment[]
+  Post          Post[]
+  ProfileInfo   ProfileInfo?
+  UsersToGroups UsersToGroups[]
+}
+
+model UsersToGroups {
+  userId  Int
+  groupId Int
+  Group   Group  @relation(fields: [groupId], references: [id])
+  Users   Users  @relation(fields: [userId], references: [id])
+
+  @@id([userId, groupId])
+}
