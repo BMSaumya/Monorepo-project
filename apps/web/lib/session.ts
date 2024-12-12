@@ -8,7 +8,7 @@ export type Session = {
     id: string;
     name: string;
   };
-  //   accessToken: string;
+  accessToken: string;
   //   refreshToken: string;
 };
 const secretKey = process.env.SESSION_SECRET_KEY!;
