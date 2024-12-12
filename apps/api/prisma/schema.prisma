@@ -12,14 +12,14 @@ model Comment {
   text     String
   authorId Int
   postId   Int
-  Users    Users  @relation(fields: [authorId], references: [id])
+  users    users  @relation(fields: [authorId], references: [id])
   Post     Post   @relation(fields: [postId], references: [id])
 }
 
 model Group {
   id            Int             @id @default(autoincrement())
   name          String
-  UsersToGroups UsersToGroups[]
+  usersToGroups usersToGroups[]
 }
 
 model Post {
@@ -28,32 +28,33 @@ model Post {
   title    String
   content  String
   Comment  Comment[]
-  Users    Users     @relation(fields: [authorId], references: [id])
+  users    users     @relation(fields: [authorId], references: [id])
 }
 
 model ProfileInfo {
   id       Int @id @default(autoincrement())
   userId   Int @unique
   metadata Json
-  Users    Users  @relation(fields: [userId], references: [id])
+  users    users  @relation(fields: [userId], references: [id])
 }
 
-model Users {
+model users {
   id            Int          @id @default(autoincrement())
   name          String
   email         String          @unique(map: "User_email_key")
   password      String
+  hashedRefreshToken String?
   Comment       Comment[]
   Post          Post[]
   ProfileInfo   ProfileInfo?
-  UsersToGroups UsersToGroups[]
+  usersToGroups usersToGroups[]
 }
 
-model UsersToGroups {
+model usersToGroups {
   userId  Int
   groupId Int
   Group   Group  @relation(fields: [groupId], references: [id])
-  Users   Users  @relation(fields: [userId], references: [id])
+  users   users  @relation(fields: [userId], references: [id])
 
   @@id([userId, groupId])
 }

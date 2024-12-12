@@ -3,8 +3,7 @@
 import { redirect } from "next/navigation";
 import { FormState, LoginFormSchema, SignupFormSchema } from "./type";
 import { BACKEND_URL } from "./constants";
-import { log } from "console";
-import { createSession } from "./session";
+import { createSession, updateTokens } from "./session";
 
 export async function signUp(
   state: FormState,
@@ -76,9 +75,9 @@ export async function signIn(
         name: result.name,
       },
       accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
     });
     redirect("/");
-    console.log({ result });
   } else {
     return {
       message:
@@ -86,3 +85,38 @@ export async function signIn(
     };
   }
 }
+
+export const refreshToken = async (oldRefreshToken: string) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/auth/refresh`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        refresh: oldRefreshToken,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to refresh token");
+    }
+
+    const { accessToken, refreshToken } = await response.json();
+    await updateTokens({ accessToken, refreshToken });
+
+    const updateRes = await fetch("http://localhost:3000/api/auth/update", {
+      method: "POST",
+      body: JSON.stringify({
+        accessToken,
+        refreshToken,
+      }),
+    });
+
+    if (!updateRes.ok) throw new Error("failed to update the tokens");
+    return accessToken;
+  } catch (err) {
+    console.error("refresh token failed: ", err);
+    return null;
+  }
+};
