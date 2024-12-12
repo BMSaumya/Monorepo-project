@@ -2,11 +2,13 @@
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { Role } from "./type";
 
 export type Session = {
   user: {
     id: string;
     name: string;
+    role: Role;
   };
   accessToken: string;
   refreshToken: string;

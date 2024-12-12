@@ -44,6 +44,7 @@ model users {
   email         String          @unique(map: "User_email_key")
   password      String
   hashedRefreshToken String?
+  role          Role            @default(USER)
   Comment       Comment[]
   Post          Post[]
   ProfileInfo   ProfileInfo?
@@ -57,4 +58,10 @@ model usersToGroups {
   users   users  @relation(fields: [userId], references: [id])
 
   @@id([userId, groupId])
+}
+
+enum Role{
+  ADMIN
+  EDITOR
+  USER
 }
